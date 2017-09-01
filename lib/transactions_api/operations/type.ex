@@ -2,12 +2,14 @@ defmodule Transactions.Operations.Type do
   use Ecto.Schema
   import Ecto.Changeset
   alias Transactions.Operations.Type
+  alias Transactions.Operations.Operation
 
 
   schema "types" do
     field :description, :string
     field :type, :string
-
+    
+    has_many :operations, Operation
     timestamps()
   end
 
