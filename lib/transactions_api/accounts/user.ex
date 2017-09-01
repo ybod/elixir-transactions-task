@@ -11,6 +11,7 @@ defmodule Transactions.Accounts.User do
     field :email, :string
     field :first_name, :string
     field :last_name, :string
+    field :is_deleted, :boolean, default: false
 
     timestamps()
   end

@@ -7,7 +7,10 @@ defmodule TransactionsWeb.UserController do
   action_fallback TransactionsWeb.FallbackController
 
   def index(conn, _params) do
-    users = Accounts.list_users()
+    users = 
+      Accounts.list_users()
+      |> Enum.filter(fn user -> !user.is_deleted end)
+        
     render(conn, "index.json", users: users)
   end
 

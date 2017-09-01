@@ -11,10 +11,13 @@ defmodule TransactionsWeb.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
+    if not user.is_deleted do
+      %{id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
       age: user.age,
-      email: user.email}
+      email: user.email
+      }
+    end
   end
 end

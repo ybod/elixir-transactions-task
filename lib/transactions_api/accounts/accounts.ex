@@ -86,7 +86,9 @@ defmodule Transactions.Accounts do
 
   """
   def delete_user(%User{} = user) do
-    Repo.delete(user)
+    user
+    |> User.changeset(%{is_deleted: true})
+    |> Repo.update()
   end
 
   @doc """
