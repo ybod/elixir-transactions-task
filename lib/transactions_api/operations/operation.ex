@@ -11,7 +11,7 @@ defmodule Transactions.Operations.Operation do
     field :description, :string
     
     belongs_to :type, Type
-    belongs_to :user, User
+    belongs_to :user, User, foreign_key: :user_id, type: :binary_id
     timestamps()
   end
 
