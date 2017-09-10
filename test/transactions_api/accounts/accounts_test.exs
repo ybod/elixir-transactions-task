@@ -87,7 +87,7 @@ defmodule Transactions.AccountsTest do
       assert %Ecto.Changeset{} = Accounts.change_user(user)
     end
 
-    test "user change set can validate required parameters" do
+    test "user changeset can validate required parameters" do
       user = user_fixture()
 
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{age: nil})
@@ -96,21 +96,25 @@ defmodule Transactions.AccountsTest do
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{email: nil})
     end
 
-    test "user change set can validate incorrect parameters" do
+    test "user changeset can validate incorrect parameters" do
       user = user_fixture()
       
+      assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{age: ""})
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{age: 15})
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{age: 101})
       
       long_name = String.duplicate("L", 101)
       
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{first_name: long_name})
+      assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{first_name: ""})
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{last_name: long_name})
+      assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{last_name: ""})
       
       assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{email: "some.incorrect.email"})
+      assert %Ecto.Changeset{valid?: false} = User.changeset(user, %{email: ""})
     end
 
-    test "user change set filters out is_deleted attribute" do
+    test "user changeset filters out is_deleted attribute" do
       user = user_fixture()
 
       deleted_changeset = User.changeset(user, %{is_deleted: true})

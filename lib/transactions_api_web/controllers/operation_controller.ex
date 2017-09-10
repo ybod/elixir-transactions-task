@@ -6,13 +6,25 @@ defmodule TransactionsWeb.OperationController do
 
   action_fallback TransactionsWeb.FallbackController
 
-  def index(conn, _params) do
-    operations = Operations.list_operations()
-    render(conn, "index.json", operations: operations)
+  def index(conn, %{"user" => user_id}) do
+    operations = Operations.list_operations(user_id)
+    total = Operations.total(user_id)
+    render(conn, "index.json", %{operations: operations, total: total})
   end
 
-  def create(conn, %{"operation" => operation_params}) do
-    with {:ok, %Operation{} = operation} <- Operations.create_operation(operation_params) do
+  def index_by_type(conn, %{"user" => user_id, "type" => type_id}) do
+    operations = Operations.list_operations(user_id, type_id)
+    total = Operations.total(user_id, type_id)
+    render(conn, "index.json", %{operations: operations, total: total})
+  end
+
+  def create(conn, %{"operation" => operation_params, "type" => type_id, "user" => user_id}) do
+    params = 
+      operation_params
+      |> Map.put_new("type_id", type_id)
+      |> Map.put_new("user_id", user_id)
+
+    with {:ok, %Operation{} = operation} <- Operations.create_operation(params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", operation_path(conn, :show, operation))
@@ -23,20 +35,5 @@ defmodule TransactionsWeb.OperationController do
   def show(conn, %{"id" => id}) do
     operation = Operations.get_operation!(id)
     render(conn, "show.json", operation: operation)
-  end
-
-  def update(conn, %{"id" => id, "operation" => operation_params}) do
-    operation = Operations.get_operation!(id)
-
-    with {:ok, %Operation{} = operation} <- Operations.update_operation(operation, operation_params) do
-      render(conn, "show.json", operation: operation)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    operation = Operations.get_operation!(id)
-    with {:ok, %Operation{}} <- Operations.delete_operation(operation) do
-      send_resp(conn, :no_content, "")
-    end
   end
 end

@@ -28,7 +28,7 @@ defmodule TransactionsWeb.TypeController do
   def update(conn, %{"id" => id, "type" => type_params}) do
     type = Operations.get_type!(id)
 
-    with {:ok, %Type{} = type} <- Operations.update_type(type, type_params) do
+    with {:ok, %Type{} = type} <- Operations.update_type_description(type, type_params) do
       render(conn, "show.json", type: type)
     end
   end

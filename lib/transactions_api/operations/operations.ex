@@ -67,54 +67,52 @@ defmodule Transactions.Operations do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_type(%Type{} = type, attrs) do
+  def update_type_description(%Type{} = type, attrs) do
     type
-    |> Type.changeset(attrs)
+    |> Type.changeset_update(attrs)
     |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Type.
-
-  ## Examples
-
-      iex> delete_type(type)
-      {:ok, %Type{}}
-
-      iex> delete_type(type)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_type(%Type{} = type) do
-    Repo.delete(type)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking type changes.
-
-  ## Examples
-
-      iex> change_type(type)
-      %Ecto.Changeset{source: %Type{}}
-
-  """
-  def change_type(%Type{} = type) do
-    Type.changeset(type, %{})
   end
 
   alias Transactions.Operations.Operation
 
   @doc """
-  Returns the list of operations.
+  Returns the list of operations associated with the provided user by id.
 
   ## Examples
 
-      iex> list_operations()
+      iex> list_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a)
       [%Operation{}, ...]
 
   """
-  def list_operations do
-    Repo.all(Operation)
+  def list_operations(user_id) do
+    q = 
+        from o in Operation,
+        join: type in assoc(o, :type),
+        join: user in assoc(o, :user),
+        where: o.user_id == ^user_id,
+        preload: [:type, :user]
+  
+    Repo.all(q)
+  end
+
+  @doc """
+  Returns the list of operations of the provided type associated with the provided user by id's.
+
+  ## Examples
+
+      iex> list_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a, 12)
+      [%Operation{}, ...]
+
+  """
+  def list_operations(user_id, type_id) do
+    q = 
+        from o in Operation,
+        join: type in assoc(o, :type),
+        join: user in assoc(o, :user),
+        where: o.user_id == ^user_id and type.id == ^type_id,
+        preload: [:type, :user]
+
+    Repo.all(q)
   end
 
   @doc """
@@ -131,7 +129,11 @@ defmodule Transactions.Operations do
       ** (Ecto.NoResultsError)
 
   """
-  def get_operation!(id), do: Repo.get!(Operation, id)
+  def get_operation!(id) do 
+    from(o in Operation, where: o.id == ^id, preload: [:user, :type])
+    |> Repo.one!
+  end
+
 
   @doc """
   Creates a operation.
@@ -152,49 +154,35 @@ defmodule Transactions.Operations do
   end
 
   @doc """
-  Updates a operation.
+  Returns the total sum of all operations amount associated with the provided user by id.
 
   ## Examples
 
-      iex> update_operation(operation, %{field: new_value})
-      {:ok, %Operation{}}
-
-      iex> update_operation(operation, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> total(f8bbf5f0-d042-40dd-bdda-019e5f9a658a)
+      10.00
 
   """
-  def update_operation(%Operation{} = operation, attrs) do
-    operation
-    |> Operation.changeset(attrs)
-    |> Repo.update()
+  def total(user_id) do
+    from(o in Operation, where: o.user_id == ^user_id)
+    |> Repo.aggregate(:sum, :amount)
   end
 
+  
   @doc """
-  Deletes a Operation.
+  Returns the total sum of all operations amount of the provided type associated with the provided user by id's.
 
   ## Examples
 
-      iex> delete_operation(operation)
-      {:ok, %Operation{}}
-
-      iex> delete_operation(operation)
-      {:error, %Ecto.Changeset{}}
+      iex> total(f8bbf5f0-d042-40dd-bdda-019e5f9a658a, 12)
+      5.00
 
   """
-  def delete_operation(%Operation{} = operation) do
-    Repo.delete(operation)
-  end
+  def total(user_id, type_id) do
+    q = 
+        from o in Operation,
+        join: type in assoc(o, :type),
+        where: o.user_id == ^user_id and type.id == ^type_id
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking operation changes.
-
-  ## Examples
-
-      iex> change_operation(operation)
-      %Ecto.Changeset{source: %Operation{}}
-
-  """
-  def change_operation(%Operation{} = operation) do
-    Operation.changeset(operation, %{})
+    Repo.aggregate(q, :sum, :amount)
   end
 end

@@ -18,7 +18,11 @@ defmodule Transactions.Operations.Operation do
   @doc false
   def changeset(%Operation{} = operation, attrs) do
     operation
-    |> cast(attrs, [:amount, :description])
-    |> validate_required([:amount, :description])
+    |> cast(attrs, [:amount, :description, :user_id, :type_id])
+    |> validate_required([:amount, :description, :user_id, :type_id])
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:type_id)
+    |> validate_number(:amount,  greater_than: -10_000.00, less_than: 10_000.00)
+    |> validate_length(:description, max: 255)
   end
 end

@@ -18,5 +18,15 @@ defmodule Transactions.Operations.Type do
     type
     |> cast(attrs, [:type, :description])
     |> validate_required([:type, :description])
+    |> validate_length(:type, max: 50)
+    |> validate_length(:description, max: 255)
+  end
+
+  @doc false
+  def changeset_update(%Type{} = type, attrs) do
+    type
+    |> cast(attrs, [:description])
+    |> validate_required([:description])
+    |> validate_length(:description, max: 255)
   end
 end

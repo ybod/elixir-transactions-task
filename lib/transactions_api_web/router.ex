@@ -10,9 +10,13 @@ defmodule TransactionsWeb.Router do
 
     resources "/users", UserController, except: [:new, :edit]
     
-    scope "/operations", TransactionsWeb do
-      resources "/types", TypeController, only: [:index, :create, :show]
-      resources "/operations", OperationController, only: [:index, :create, :show]
+    scope "/operations" do
+      resources "/types", TypeController, only: [:index, :create, :show, :update]
+      
+      get "/all/:user", OperationController, :index
+      get "/all/:user/:type", OperationController, :index_by_type
+      get "/:id", OperationController, :show
+      post "/:user/:type", OperationController, :create
     end
   end
 end
