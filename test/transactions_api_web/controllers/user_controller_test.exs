@@ -4,8 +4,8 @@ defmodule TransactionsWeb.UserControllerTest do
   alias Transactions.Accounts
   alias Transactions.Accounts.User
 
-  @create_attrs %{age: 42, email: "some email", first_name: "some first_name", last_name: "some last_name"}
-  @update_attrs %{age: 43, email: "some updated email", first_name: "some updated first_name", last_name: "some updated last_name"}
+  @create_attrs %{age: 22, email: "some@email.com", first_name: "SomeFirstName", last_name: "SomeLastName"}
+  @update_attrs %{age: 100, email: "some.updated@email.com", first_name: String.duplicate("U", 100), last_name: "SomeUpdatedLastName"}
   @invalid_attrs %{age: nil, email: nil, first_name: nil, last_name: nil}
 
   def fixture(:user) do
@@ -32,10 +32,10 @@ defmodule TransactionsWeb.UserControllerTest do
       conn = get conn, user_path(conn, :show, id)
       assert json_response(conn, 200)["data"] == %{
         "id" => id,
-        "age" => 42,
-        "email" => "some email",
-        "first_name" => "some first_name",
-        "last_name" => "some last_name"}
+        "age" => @create_attrs.age,
+        "email" => @create_attrs.email,
+        "first_name" => @create_attrs.first_name,
+        "last_name" => @create_attrs.last_name}
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -54,10 +54,10 @@ defmodule TransactionsWeb.UserControllerTest do
       conn = get conn, user_path(conn, :show, id)
       assert json_response(conn, 200)["data"] == %{
         "id" => id,
-        "age" => 43,
-        "email" => "some updated email",
-        "first_name" => "some updated first_name",
-        "last_name" => "some updated last_name"}
+        "age" => @update_attrs.age,
+        "email" => @update_attrs.email,
+        "first_name" => @update_attrs.first_name,
+        "last_name" => @update_attrs.last_name}
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
@@ -72,9 +72,9 @@ defmodule TransactionsWeb.UserControllerTest do
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete conn, user_path(conn, :delete, user)
       assert response(conn, 204)
-      assert_error_sent 404, fn ->
-        get conn, user_path(conn, :show, user)
-      end
+      
+      conn = get conn, user_path(conn, :show, user)
+      assert json_response(conn, 404)["errors"] == %{"detail" => "No active user was found with given id"}
     end
   end
 

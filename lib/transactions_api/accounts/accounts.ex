@@ -9,7 +9,7 @@ defmodule Transactions.Accounts do
   alias Transactions.Accounts.User
 
   @doc """
-  Returns the list of users.
+  Returns the list of active users.
 
   ## Examples
 
@@ -17,25 +17,27 @@ defmodule Transactions.Accounts do
       [%User{}, ...]
 
   """
-  def list_users do
-    Repo.all(User)
+  def list_active_users do
+    from(u in User, where: not u.is_deleted)
+    |> Repo.all()
   end
 
   @doc """
-  Gets a single user.
-
-  Raises `Ecto.NoResultsError` if the User does not exist.
+  Gets a single user if user is active or returns nil if active user is not found.
 
   ## Examples
 
-      iex> get_user!(123)
+      iex> get_user(123)
       %User{}
 
-      iex> get_user!(456)
-      ** (Ecto.NoResultsError)
+      iex> get_user(456)
+      nil
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_active_user(id) do 
+    from(u in User, where: u.id == ^id and not u.is_deleted)
+    |> Repo.one()
+  end
 
   @doc """
   Creates a user.
@@ -87,7 +89,7 @@ defmodule Transactions.Accounts do
   """
   def delete_user(%User{} = user) do
     user
-    |> User.changeset(%{is_deleted: true})
+    |> Ecto.Changeset.change(is_deleted: true)
     |> Repo.update()
   end
 

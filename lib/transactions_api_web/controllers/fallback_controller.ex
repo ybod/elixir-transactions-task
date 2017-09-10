@@ -17,4 +17,10 @@ defmodule TransactionsWeb.FallbackController do
     |> put_status(:not_found)
     |> render(TransactionsWeb.ErrorView, :"404")
   end
+
+  def call(conn, {:error, :no_user_found}) do
+    conn
+    |> put_status(:not_found)
+    |> render(TransactionsWeb.UserErrorView, "no_user_found.json")
+  end
 end

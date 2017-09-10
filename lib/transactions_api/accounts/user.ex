@@ -22,5 +22,9 @@ defmodule Transactions.Accounts.User do
     user
     |> cast(attrs, [:first_name, :last_name, :age, :email])
     |> validate_required([:first_name, :last_name, :age, :email])
+    |> validate_length(:first_name, max: 100)
+    |> validate_length(:last_name, max: 100)
+    |> validate_format(:email, ~r/@/)
+    |> validate_inclusion(:age, 21..100)
   end
 end

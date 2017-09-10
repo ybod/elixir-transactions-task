@@ -32,11 +32,4 @@ defmodule TransactionsWeb.TypeController do
       render(conn, "show.json", type: type)
     end
   end
-
-  def delete(conn, %{"id" => id}) do
-    type = Operations.get_type!(id)
-    with {:ok, %Type{}} <- Operations.delete_type(type) do
-      send_resp(conn, :no_content, "")
-    end
-  end
 end

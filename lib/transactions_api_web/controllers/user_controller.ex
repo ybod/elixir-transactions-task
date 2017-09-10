@@ -7,10 +7,7 @@ defmodule TransactionsWeb.UserController do
   action_fallback TransactionsWeb.FallbackController
 
   def index(conn, _params) do
-    users = 
-      Accounts.list_users()
-      |> Enum.filter(fn user -> !user.is_deleted end)
-        
+    users = Accounts.list_active_users()
     render(conn, "index.json", users: users)
   end
 
@@ -24,22 +21,27 @@ defmodule TransactionsWeb.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
-    render(conn, "show.json", user: user)
+    with {:ok, user} <- get_active_user(id) do
+      render(conn, "show.json", user: user)
+    end      
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Accounts.get_user!(id)
-
-    with {:ok, %User{} = user} <- Accounts.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
-    end
+    with {:ok, user} <- get_active_user(id),
+         {:ok, %User{} = user} <- Accounts.update_user(user, user_params), 
+      do:  render(conn, "show.json", user: user)
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
-    with {:ok, %User{}} <- Accounts.delete_user(user) do
-      send_resp(conn, :no_content, "")
+    with {:ok, user} <- get_active_user(id),    
+         {:ok, %User{}} <- Accounts.delete_user(user), 
+         do: send_resp(conn, :no_content, "")
+  end
+
+  defp get_active_user(id) do
+    case Accounts.get_active_user(id) do
+      user = %User{} -> {:ok, user}
+      nil -> {:error, :no_user_found}
     end
   end
 end
