@@ -128,3 +128,16 @@ Example of **Operation**s JSON:
 
 #### Trying to get deleted user
 ![Trying to get deleted user](http://i.piccy.info/i9/6d2a7f504fa27cbef7361c8af419932f/1505146140/36073/1178831/Get_Deleted_User.jpg "Trying to get deleted user") 
+
+#### Get operation types
+![Get operation types](http://i.piccy.info/i9/607fb6ad2670b50c92a8d042b3f7dae7/1505146444/45421/1178831/Get_Types.jpg "Get operation types") 
+
+#### Create new operation type
+![Create new operation type](http://i.piccy.info/i9/3a4f9c28afb0d83609fae719702e28a7/1505146503/39625/1178831/Create_type.jpg "Create new operation type") 
+
+#### Get operations by User Id
+![Get operations by User Id](http://i.piccy.info/i9/c82bbb734aade08eee7f6b50550f5932/1505146845/89317/1178831/Get_operations.jpg "Get operations by User Id") 
+
+#### Get operations by User ans Type Id's
+![Get operations by User ans Type Id's](http://i.piccy.info/i9/ecd5dbfee5ce4f7268348f78775c444a/1505146898/71754/1178831/Get_operation_by_type.jpg "Get operations by User ans Type Id's") 
+
