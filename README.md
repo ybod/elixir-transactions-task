@@ -29,6 +29,7 @@ Project consists of the two contexts:
 
 Following API operations are available:
 
+### User
 ```
 GET     /api/users
 GET     /api/users/:id                 
@@ -39,6 +40,18 @@ DELETE  /api/users/:id
 ```
 These operations allows to get list of all available users, show user by `id`, create user, update and delete user. You can set `is_deleted` attribute only with `DELETE` operation, update operation ignores this arttibute. _Deleted_ user is exluded from the users list, and returns error if You try to manipulate this recored by `id`.
 
+Example of **User** JSON:
+```json
+		{
+			"last_name": "Bond",
+			"id": "2a9bc69e-2b33-4099-ab1b-11ecb25b969e",
+			"first_name": "James",
+			"email": "a@b.com",
+			"age": 25
+		}
+```
+
+### Type
 ```
 GET     /api/operations/types          
 GET     /api/operations/types/:id      
@@ -48,6 +61,16 @@ PUT     /api/operations/types/:id
 ```
 These operations allows manipulations with _transcation_ types. Once created - type can't be deleted and only type description can be udpated.
 
+Example of **Type** JSON:
+```json
+		{
+			"type": "debit",
+			"id": 1,
+			"description": "remove an amount of money from a users's account"
+		}
+```
+
+### Operation
 ```
 GET     /api/operations/all/:user      
 GET     /api/operations/all/:user/:type
@@ -55,3 +78,49 @@ GET     /api/operations/:id
 POST    /api/operations/:user/:type    
 ```
 This set of API calls allows manipulations with `operations`(transcations). You can get the list of all transactions for the user. You can list user transcations only of the particular type. And You can create a new transaction. Once created - transaction can't be nor deleted not modified.
+
+Example of **Operation**s JSON:
+```json
+{
+	"data": {
+		"user": {
+			"last_name": "Bond",
+			"id": "2a9bc69e-2b33-4099-ab1b-11ecb25b969e",
+			"first_name": "James",
+			"email": "a@b.com",
+			"age": 25
+		},
+		"total": 5.0,
+		"operations": [
+			{
+				"type": {
+					"type": "credit",
+					"id": 2,
+					"description": "add an amount of money to a users's account"
+				},
+				"id": 1,
+				"description": "Enumeration",
+				"date": "2017-09-11T15:51:57.547000",
+				"amount": 10.0
+			},
+			{
+				"type": {
+					"type": "debit",
+					"id": 1,
+					"description": "remove an amount of money from a users's account"
+				},
+				"id": 2,
+				"description": "Amazon sale",
+				"date": "2017-09-11T15:51:57.565000",
+				"amount": -5.0
+			}
+		]
+	}
+}
+```
+
+## API operations Examples
+#### Get all users
+![Get all users](http://i.piccy.info/i9/dc5a476e23eb356564cc722029e6950b/1505145709/63498/1178831/Get_Users.jpg "Get all users") 
+
+
