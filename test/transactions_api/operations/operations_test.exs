@@ -82,64 +82,86 @@ defmodule Transactions.OperationsTest do
   end
 
   describe "operations" do
-  #   alias Transactions.Operations.Operation
+    alias Transactions.Operations.Operation
+    alias Transactions.Accounts
 
-  #   @valid_attrs %{amount: 120.5, description: "some description"}
-  #   @update_attrs %{amount: 456.7, description: "some updated description"}
-  #   @invalid_attrs %{amount: nil, description: nil}
+    @valid_attrs %{amount: -10_000.0, description: "d"}
+    @invalid_attrs %{amount: nil, description: nil}
 
-  #   def operation_fixture(attrs \\ %{}) do
-  #     {:ok, operation} =
-  #       attrs
-  #       |> Enum.into(@valid_attrs)
-  #       |> Operations.create_operation()
+    @user_attrs %{age: 22, email: "some@email.com", first_name: "SomeFirstName", last_name: "SomeLastName"}
+    @type_attrs %{description: "some description", type: String.duplicate("T", 50)}
 
-  #     operation
-  #   end
+    def operation_fixture(attrs \\ %{}) do
+      {:ok, user} = Accounts.create_user(@user_attrs)
+      {:ok, type} = Operations.create_type(@type_attrs)
+     
+      {:ok, operation} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Enum.into(%{type_id: type.id, user_id: user.id})
+        |> Operations.create_operation()
 
-  #   test "list_operations/0 returns all operations" do
-  #     operation = operation_fixture()
-  #     assert Operations.list_operations() == [operation]
-  #   end
+      %{operation: operation, user: user, type: type}      
+    end
 
-  #   test "get_operation!/1 returns the operation with given id" do
-  #     operation = operation_fixture()
-  #     assert Operations.get_operation!(operation.id) == operation
-  #   end
+    test "list_user_operations/1 returns all user operations" do
+      %{operation: operation, user: user, type: type} = operation_fixture()
+      user_w_operations = Operations.list_user_operations(user) 
+      user_operation = List.first(user_w_operations.operations) 
 
-  #   test "create_operation/1 with valid data creates a operation" do
-  #     assert {:ok, %Operation{} = operation} = Operations.create_operation(@valid_attrs)
-  #     assert operation.amount == 120.5
-  #     assert operation.description == "some description"
-  #   end
+      assert user_w_operations.id == user.id
+      assert user_operation.id == operation.id
+      assert user_operation.type.id == type.id
+    end
 
-  #   test "create_operation/1 with invalid data returns error changeset" do
-  #     assert {:error, %Ecto.Changeset{}} = Operations.create_operation(@invalid_attrs)
-  #   end
+    test "list_user_operations/2 returns all user operations of defined type" do
+      %{operation: operation, user: user, type: type} = operation_fixture()
+      user_w_operations = Operations.list_user_operations(user, type.id) 
+      user_operation = List.first(user_w_operations.operations) 
 
-  #   test "update_operation/2 with valid data updates the operation" do
-  #     operation = operation_fixture()
-  #     assert {:ok, operation} = Operations.update_operation(operation, @update_attrs)
-  #     assert %Operation{} = operation
-  #     assert operation.amount == 456.7
-  #     assert operation.description == "some updated description"
-  #   end
+      assert user_w_operations.id == user.id
+      assert user_operation.id == operation.id
+      assert user_operation.type.id == type.id
+    end
 
-  #   test "update_operation/2 with invalid data returns error changeset" do
-  #     operation = operation_fixture()
-  #     assert {:error, %Ecto.Changeset{}} = Operations.update_operation(operation, @invalid_attrs)
-  #     assert operation == Operations.get_operation!(operation.id)
-  #   end
+    test "get_operation!/1 returns the operation with given id" do
+      %{operation: operation, user: user, type: type} = operation_fixture()
+      user_operation = Operations.get_operation!(operation.id) 
 
-  #   test "delete_operation/1 deletes the operation" do
-  #     operation = operation_fixture()
-  #     assert {:ok, %Operation{}} = Operations.delete_operation(operation)
-  #     assert_raise Ecto.NoResultsError, fn -> Operations.get_operation!(operation.id) end
-  #   end
+      assert user_operation.id == operation.id
+      assert user_operation.user.id == user.id
+      assert user_operation.type.id == type.id
+    end
 
-  #   test "change_operation/1 returns a operation changeset" do
-  #     operation = operation_fixture()
-  #     assert %Ecto.Changeset{} = Operations.change_operation(operation)
-  #   end
+    test "create_operation/1 with valid data creates a operation" do
+      {:ok, user} = Accounts.create_user(@user_attrs)
+      {:ok, type} = Operations.create_type(@type_attrs)
+      
+      operation_attr = 
+        @valid_attrs
+        |> Enum.into(%{type_id: type.id, user_id: user.id})
+
+      assert {:ok, %Operation{} = operation} = Operations.create_operation(operation_attr)
+
+      assert operation.amount == @valid_attrs.amount
+      assert operation.description == @valid_attrs.description
+    end
+
+    test "create_operation/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Operations.create_operation(@invalid_attrs)
+    end
+
+    test "user changeset can validate required parameters" do
+      %{operation: operation} = operation_fixture()
+
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{amount: nil})
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{amount: ""})
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{amount: -10_000.001})
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{amount: 10_000.0001})
+      
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{description: nil})
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{description: ""})
+      assert %Ecto.Changeset{valid?: false} = Operation.changeset(operation, %{description:  String.duplicate("!", 256)})
+    end
   end
 end

@@ -23,9 +23,7 @@ defmodule TransactionsWeb.OperationController do
 
   def create(conn, %{"operation" => operation_params, "type" => type_id, "user" => user_id}) do
     params = 
-      operation_params
-      |> Map.put_new("type_id", type_id)
-      |> Map.put_new("user_id", user_id)
+      Enum.into(operation_params, %{"type_id" => type_id, "user_id" => user_id})
 
     with {:ok, %Operation{} = operation} <- Operations.create_operation(params) do
       conn
