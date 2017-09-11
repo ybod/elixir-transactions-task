@@ -21,27 +21,20 @@ defmodule TransactionsWeb.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    with {:ok, user} <- get_active_user(id) do
+    with {:ok, user} <- Accounts.get_active_user(id) do
       render(conn, "show.json", user: user)
     end      
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
-    with {:ok, user} <- get_active_user(id),
+    with {:ok, user} <- Accounts.get_active_user(id),
          {:ok, %User{} = user} <- Accounts.update_user(user, user_params), 
       do:  render(conn, "show.json", user: user)
   end
 
   def delete(conn, %{"id" => id}) do
-    with {:ok, user} <- get_active_user(id),    
+    with {:ok, user} <- Accounts.get_active_user(id),    
          {:ok, %User{}} <- Accounts.delete_user(user), 
          do: send_resp(conn, :no_content, "")
-  end
-
-  defp get_active_user(id) do
-    case Accounts.get_active_user(id) do
-      user = %User{} -> {:ok, user}
-      nil -> {:error, :no_user_found}
-    end
   end
 end

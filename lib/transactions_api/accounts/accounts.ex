@@ -35,8 +35,12 @@ defmodule Transactions.Accounts do
 
   """
   def get_active_user(id) do 
-    from(u in User, where: u.id == ^id and not u.is_deleted)
-    |> Repo.one()
+    q = from(u in User, where: u.id == ^id and not u.is_deleted)
+
+    case  Repo.one(q) do
+      user = %User{} -> {:ok, user}
+      nil -> {:error, :no_user_found}
+    end
   end
 
   @doc """

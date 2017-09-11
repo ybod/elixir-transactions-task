@@ -76,43 +76,36 @@ defmodule Transactions.Operations do
   alias Transactions.Operations.Operation
 
   @doc """
-  Returns the list of operations associated with the provided user by id.
+  Returns the list of operations associated with the provided user.
 
   ## Examples
 
-      iex> list_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a)
+      iex> list_user_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a)
       [%Operation{}, ...]
 
   """
-  def list_operations(user_id) do
-    q = 
-        from o in Operation,
-        join: type in assoc(o, :type),
-        join: user in assoc(o, :user),
-        where: o.user_id == ^user_id,
-        preload: [:type, :user]
-  
-    Repo.all(q)
+  def list_user_operations(user) do
+    Repo.preload(user, operations: from(o in Operation, order_by: o.id, preload: [:type]))
   end
 
   @doc """
-  Returns the list of operations of the provided type associated with the provided user by id's.
+  Returns the list of operations of the given type (id) associated with the provided user.
 
   ## Examples
 
-      iex> list_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a, 12)
+      iex> list_user_operations(f8bbf5f0-d042-40dd-bdda-019e5f9a658a. 12)
       [%Operation{}, ...]
 
-  """
-  def list_operations(user_id, type_id) do
+  """  
+  def list_user_operations(user, type_id) do
     q = 
         from o in Operation,
+        order_by: o.id,
         join: type in assoc(o, :type),
-        join: user in assoc(o, :user),
-        where: o.user_id == ^user_id and type.id == ^type_id,
-        preload: [:type, :user]
+        where: type.id == ^type_id,
+        preload: [:type]
 
-    Repo.all(q)
+    Repo.preload(user, operations: q)
   end
 
   @doc """
@@ -133,7 +126,6 @@ defmodule Transactions.Operations do
     from(o in Operation, where: o.id == ^id, preload: [:user, :type])
     |> Repo.one!
   end
-
 
   @doc """
   Creates a operation.

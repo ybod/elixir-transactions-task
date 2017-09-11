@@ -3,19 +3,22 @@ defmodule TransactionsWeb.OperationController do
 
   alias Transactions.Operations
   alias Transactions.Operations.Operation
+  alias Transactions.Accounts
 
   action_fallback TransactionsWeb.FallbackController
 
   def index(conn, %{"user" => user_id}) do
-    operations = Operations.list_operations(user_id)
-    total = Operations.total(user_id)
-    render(conn, "index.json", %{operations: operations, total: total})
+    with {:ok, user} <- Accounts.get_active_user(user_id),
+      user_operations <- Operations.list_user_operations(user),
+      operations_total <- Operations.total(user_id),
+      do: render(conn, "index.json", %{user_operations: user_operations, operations_total: operations_total})
   end
 
   def index_by_type(conn, %{"user" => user_id, "type" => type_id}) do
-    operations = Operations.list_operations(user_id, type_id)
-    total = Operations.total(user_id, type_id)
-    render(conn, "index.json", %{operations: operations, total: total})
+    with {:ok, user} <- Accounts.get_active_user(user_id),
+    user_operations <- Operations.list_user_operations(user, type_id),
+    operations_total <- Operations.total(user_id),
+    do: render(conn, "index.json", %{user_operations: user_operations, operations_total: operations_total})
   end
 
   def create(conn, %{"operation" => operation_params, "type" => type_id, "user" => user_id}) do
