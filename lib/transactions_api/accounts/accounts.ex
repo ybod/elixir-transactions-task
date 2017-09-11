@@ -23,15 +23,15 @@ defmodule Transactions.Accounts do
   end
 
   @doc """
-  Gets a single user if user is active or returns nil if active user is not found.
+  Gets a single user if user is active or returns :error if active user is not found.
 
   ## Examples
 
       iex> get_user(123)
-      %User{}
+      {:ok, %User{}}
 
       iex> get_user(456)
-      nil
+      {:error, :no_user_found}
 
   """
   def get_active_user(id) do 

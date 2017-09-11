@@ -33,18 +33,18 @@ defmodule Transactions.AccountsTest do
     test "delete_user/1 deletes the user" do
       user = user_fixture()
       assert {:ok, %User{}} = Accounts.delete_user(user)
-      assert Accounts.get_active_user(user.id) == nil
+      assert Accounts.get_active_user(user.id) == {:error, :no_user_found}
     end
 
     test "get_active_user/1 returns the active user with given id" do
       user = user_fixture()
-      assert Accounts.get_active_user(user.id) == user
+      assert {:ok, ^user} = Accounts.get_active_user(user.id)
     end
 
     test "get_active_user/1 do not returns deleted user with given id" do
       user = user_fixture()
       {:ok, _} = Accounts.delete_user(user)
-      assert Accounts.get_active_user(user.id) == nil
+      assert Accounts.get_active_user(user.id) == {:error, :no_user_found}
     end
     
     test "create_user/1 with valid data creates a user" do
@@ -72,7 +72,7 @@ defmodule Transactions.AccountsTest do
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_active_user(user.id)
+      assert {:ok, ^user} = Accounts.get_active_user(user.id)
     end
 
     test "update_user/2 can't update is_deleted user attribute" do
