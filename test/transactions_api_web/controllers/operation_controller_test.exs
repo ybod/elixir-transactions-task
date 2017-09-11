@@ -34,9 +34,11 @@ defmodule TransactionsWeb.OperationControllerTest do
 
       conn = get conn, operation_path(conn, :index, user.id)
       [data_operation] = json_response(conn, 200)["data"]["operations"]
+      total = json_response(conn, 200)["data"]["total"]
       
       assert data_operation["description"] == @create_attrs.description
       assert data_operation["amount"] == @create_attrs.amount
+      assert total == @create_attrs.amount
     end
 
     test "returns error for deleted user id", %{conn: conn} do
@@ -52,9 +54,11 @@ defmodule TransactionsWeb.OperationControllerTest do
 
       conn = get conn, operation_path(conn, :index_by_type, user.id, type.id)
       [data_operation] = json_response(conn, 200)["data"]["operations"]
-      
+      total = json_response(conn, 200)["data"]["total"]
+
       assert data_operation["description"] == @create_attrs.description
       assert data_operation["amount"] == @create_attrs.amount
+      assert total == @create_attrs.amount
     end
 
     test "returns error for deleted user id with correct type id", %{conn: conn} do
