@@ -44,7 +44,7 @@ defmodule TransactionsWeb.TypeControllerTest do
 
   describe "update type" do
     test "renders type when data is valid", %{conn: conn} do
-      {:ok, type} = Operations.create_type(@create_attrs)
+      type = fixture(:type)
       id = type.id
 
       conn = put conn, type_path(conn, :update, type), type: @update_attrs
@@ -58,7 +58,7 @@ defmodule TransactionsWeb.TypeControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      {:ok, type} = Operations.create_type(@create_attrs)
+      type = fixture(:type)
       
       conn = put conn, type_path(conn, :update, type), type: @invalid_attrs
       assert json_response(conn, 422)["errors"] != %{}

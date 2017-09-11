@@ -107,7 +107,7 @@ defmodule Transactions.OperationsTest do
     test "list_user_operations/1 returns all user operations" do
       %{operation: operation, user: user, type: type} = operation_fixture()
       user_w_operations = Operations.list_user_operations(user) 
-      user_operation = List.first(user_w_operations.operations) 
+      [user_operation] = user_w_operations.operations 
 
       assert user_w_operations.id == user.id
       assert user_operation.id == operation.id
@@ -117,7 +117,7 @@ defmodule Transactions.OperationsTest do
     test "list_user_operations/2 returns all user operations of defined type" do
       %{operation: operation, user: user, type: type} = operation_fixture()
       user_w_operations = Operations.list_user_operations(user, type.id) 
-      user_operation = List.first(user_w_operations.operations) 
+      [user_operation] = user_w_operations.operations 
 
       assert user_w_operations.id == user.id
       assert user_operation.id == operation.id

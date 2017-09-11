@@ -5,77 +5,89 @@ defmodule TransactionsWeb.OperationControllerTest do
   alias Transactions.Operations.Operation
 
   @create_attrs %{amount: 120.5, description: "some description"}
-  @update_attrs %{amount: 456.7, description: "some updated description"}
   @invalid_attrs %{amount: nil, description: nil}
 
+  @user_attrs %{age: 22, email: "some@email.com", first_name: "SomeFirstName", last_name: "SomeLastName"}
+  @type_attrs %{description: "some description", type: String.duplicate("T", 50)}
+
   def fixture(:operation) do
-    {:ok, operation} = Operations.create_operation(@create_attrs)
-    operation
+    {:ok, user} = Transactions.Accounts.create_user(@user_attrs)
+    {:ok, type} = Operations.create_type(@type_attrs)
+    
+    operation_attr = 
+      @create_attrs
+      |> Enum.into(%{type_id: type.id, user_id: user.id})
+
+    {:ok, operation} = Operations.create_operation(operation_attr)
+    
+    %{operation: operation, user: user, type: type}
   end
 
+  
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   describe "index" do
-    test "lists all operations", %{conn: conn} do
-      conn = get conn, operation_path(conn, :index)
-      assert json_response(conn, 200)["data"] == []
+    test "lists all operations by user id", %{conn: conn} do
+      %{user: user} = fixture(:operation) 
+
+      conn = get conn, operation_path(conn, :index, user.id)
+      [data_operation] = json_response(conn, 200)["data"]["operations"]
+      
+      assert data_operation["description"] == @create_attrs.description
+      assert data_operation["amount"] == @create_attrs.amount
+    end
+
+    test "returns error for deleted user id", %{conn: conn} do
+      %{user: user} = fixture(:operation) 
+      {:ok, _} = Transactions.Accounts.delete_user(user)
+
+      conn = get conn, operation_path(conn, :index, user.id)
+      assert %{"errors" => _} = json_response(conn, 404)
+    end
+
+    test "lists all operations by user id and type id", %{conn: conn} do
+      %{user: user, type: type} = fixture(:operation) 
+
+      conn = get conn, operation_path(conn, :index_by_type, user.id, type.id)
+      [data_operation] = json_response(conn, 200)["data"]["operations"]
+      
+      assert data_operation["description"] == @create_attrs.description
+      assert data_operation["amount"] == @create_attrs.amount
+    end
+
+    test "returns error for deleted user id with correct type id", %{conn: conn} do
+      %{user: user, type: type} = fixture(:operation) 
+      {:ok, _} = Transactions.Accounts.delete_user(user)
+
+      conn = get conn, operation_path(conn, :index_by_type, user.id, type.id)
+      assert %{"errors" => _} = json_response(conn, 404)
     end
   end
 
   describe "create operation" do
     test "renders operation when data is valid", %{conn: conn} do
-      conn = post conn, operation_path(conn, :create), operation: @create_attrs
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      {:ok, user} = Transactions.Accounts.create_user(@user_attrs)
+      {:ok, type} = Operations.create_type(@type_attrs)
+      
+      conn = post conn, operation_path(conn, :create, user.id, type.id), operation: @create_attrs
+      data_created = json_response(conn, 201)["data"]
 
-      conn = get conn, operation_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "amount" => 120.5,
-        "description" => "some description"}
+      conn = get conn, operation_path(conn, :show, data_created["id"])
+      data_shown = assert json_response(conn, 200)["data"] 
+
+      assert data_shown["id"] == data_created["id"]
+      assert data_shown["amount"] == @create_attrs.amount
+      assert data_shown["description"] == @create_attrs.description
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post conn, operation_path(conn, :create), operation: @invalid_attrs
+      {:ok, user} = Transactions.Accounts.create_user(@user_attrs)
+      {:ok, type} = Operations.create_type(@type_attrs)
+      
+      conn = post conn, operation_path(conn, :create, user.id, type.id), operation: @invalid_attrs
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
-
-  describe "update operation" do
-    setup [:create_operation]
-
-    test "renders operation when data is valid", %{conn: conn, operation: %Operation{id: id} = operation} do
-      conn = put conn, operation_path(conn, :update, operation), operation: @update_attrs
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get conn, operation_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "amount" => 456.7,
-        "description" => "some updated description"}
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, operation: operation} do
-      conn = put conn, operation_path(conn, :update, operation), operation: @invalid_attrs
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete operation" do
-    setup [:create_operation]
-
-    test "deletes chosen operation", %{conn: conn, operation: operation} do
-      conn = delete conn, operation_path(conn, :delete, operation)
-      assert response(conn, 204)
-      assert_error_sent 404, fn ->
-        get conn, operation_path(conn, :show, operation)
-      end
-    end
-  end
-
-  defp create_operation(_) do
-    operation = fixture(:operation)
-    {:ok, operation: operation}
   end
 end

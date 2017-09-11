@@ -140,9 +140,13 @@ defmodule Transactions.Operations do
 
   """
   def create_operation(attrs \\ %{}) do
-    %Operation{}
-    |> Operation.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, new_operation} <- 
+        %Operation{} 
+        |> Operation.changeset(attrs) 
+        |> Repo.insert() 
+        
+        do {:ok, Repo.preload(new_operation, [:user, :type])} 
+    end
   end
 
   @doc """
