@@ -123,4 +123,8 @@ Example of **Operation**s JSON:
 #### Get all users
 ![Get all users](http://i.piccy.info/i9/dc5a476e23eb356564cc722029e6950b/1505145709/63498/1178831/Get_Users.jpg "Get all users") 
 
+#### Create user
+![Create user](http://i.piccy.info/i9/27edf46b601d075615d132521a9b082f/1505146083/63498/1178831/Get_Users.jpg "Create user") 
 
+#### Trying to get deleted user
+![Trying to get deleted user](http://i.piccy.info/i9/6d2a7f504fa27cbef7361c8af419932f/1505146140/36073/1178831/Get_Deleted_User.jpg "Trying to get deleted user") 
