@@ -17,7 +17,7 @@ defmodule TransactionsWeb.OperationController do
   def index_by_type(conn, %{"user" => user_id, "type" => type_id}) do
     with {:ok, user} <- Accounts.get_active_user(user_id),
     user_operations <- Operations.list_user_operations(user, type_id),
-    operations_total <- Operations.total(user_id),
+    operations_total <- Operations.total(user_id, type_id),
     do: render(conn, "index.json", %{user_operations: user_operations, operations_total: operations_total})
   end
 
