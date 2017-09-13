@@ -23,7 +23,7 @@ Project consists of the two contexts:
   * **Operations** contains **Operation** -
  transaction of a a given **Type**. Each transaction is connected with **User** and **Type**.
   * **Type** can be created, shown, and type description can be updated. Once created - operation type can't be deleted.
-  * **Operation** of particular types can be created for a given user. Once created - operations can't be not updated not deleted. In case of balance correction - You can introduce a new operation of specific type and/or description (eg "adjustment", "refund"...)
+  * **Operation** of particular types can be created for a given user. Once created - operations can't be nor updated not deleted. In case of balance correction - You can introduce a new operation with specific type and/or description (eg "adjustment", "refund"...)
 
 ## API details
 
